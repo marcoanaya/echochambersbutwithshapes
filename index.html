@@ -113,14 +113,13 @@
         .fill()
         .map((_, i) => new Node(i, w, h, this));
     }
-    /* */
+    /* when a nodes signal has been sent, this function updates the 
+       shapes it has reached */
     updateDist(i) {
       let n1 = this.nodes[i];
       this.nodes.map((n2, j) => {
-        if (i === j) return;
-        if (n1.dist(n2) <= maxSigSize(n1.c)) {
+        if ((i !== j) && (n1.dist(n2) <= maxSigSize(n1.c)))
           n1.influence(n2);
-        }
       });
     }
     /* continually draws and updates nodes, 
