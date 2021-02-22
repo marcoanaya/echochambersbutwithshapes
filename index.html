@@ -5,20 +5,22 @@
 <script src="https://cdn.jsdelivr.net/npm/p5@1.2.0/lib/p5.js"></script>
 
 <script>
+  // converts 'polarity' coefficient to color
+  // todo: red and blue are a little on the nose but they were the easiest
   const clr = c => [128+c, 50, 128-c];
-  const maxSigSize = c => (2*abs(c));
+  // function to calculate max signal size based on polarity coefficient
+  const maxSigSize = c => (2*Math.abs(c));
+  // javascript doesn't have good random functions :^(
   const rand_between = (s, e) => (Math.random() * (e-s)) + s;
   const rand_arr = arr => arr[Math.floor(rand_between(0, arr.length))];
   const rand_within = (x, delta) => rand_between(x-delta, x+delta);
-  const increment = (x, i, cap) => {
-    if (abs(x + i) > abs(cap)) {
-      return Math.sign(x + i) * cap;
-    } else {
-      return x + i;
-    }
-  }
-</script>
-<script>
+  // increases x by i, but rounds to 'cap'
+  const increment = (x, i, cap) => (
+    (Math.abs(x + i) > Math.abs(cap))
+      ? Math.sign(x + i) * cap 
+      : x + i
+  )
+
   /* Node class
    * Represents each individual shape
    */
@@ -31,11 +33,13 @@
       this.color = clr(this.c);
       
       // random attributes for more visual aesthetics
+      // todo: make shapes more interesting
       this.r = Math.random();
       [this.x, this.y] = [w, h].map(x => rand_between(-x/3, x/3));
       this.sides = rand_arr([3,4,6,24])
       this.radii = [25,15].map(x => rand_within(x, x/5))
       
+      // initializes 'signal' (circle that comes out of shape)
       this.signalSize = 0;
     }
     /* graphic representation of shape and its 'signal' */
@@ -50,8 +54,7 @@
       push();
       fill(...clr(this.c));
       noStroke();
-      rotateX((this.r *fc)/10);
-      rotateY((this.r *fc)/10);
+      [rotateX, rotateY].map(f => f((this.r * fc)/10));
       torus(...this.radii, this.sides);
       pop();
     }
@@ -78,7 +81,6 @@
       if (this.signalSize > maxSigSize(this.c)) {
         this.graph.updateDist(this.name);
         this.signalSize = 0;
-        return;
       } else if (this.signalSize > 0) {
         this.signalSize += 5;
       }
@@ -88,6 +90,7 @@
       return Math.sqrt(Math.pow(this.x-that.x,2) + Math.pow(this.y-that.y,2));
     }
     /* 'influences' another shape by updating its attributes*/
+    /* todo: tweak */
     influence(that) {
       let sign = (Math.sign(this.c) === Math.sign(that.c))
       // 1 if are similar polarity, -1 if opposite
@@ -100,8 +103,6 @@
     }
   }
   
-</script>
-<script>
   /* Graph class
    * Represents a collection of shapes and updates based on their interactions
    */
@@ -137,8 +138,7 @@
     })
     }
   }
-</script>
-<script>
+
   // p5.js stuff
   let g;
   
