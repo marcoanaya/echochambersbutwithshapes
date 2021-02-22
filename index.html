@@ -20,7 +20,7 @@
 </script>
 <script>
   /* Node class
-   *
+   * Represents each individual shape
    */
   class Node {
     constructor(i, w, h, g) {
@@ -38,11 +38,10 @@
       
       this.signalSize = 0;
     }
-    
+    /* graphic representation of shape and its 'signal' */
     draw(fc) {
       push();
       translate(this.x, this.y);
-      
       this.drawSelf(fc);
       this.drawSignal(fc);
       pop();
@@ -65,12 +64,16 @@
       cylinder(this.signalSize, 10, 24, 1, false, false );
       pop();
     }
+    /* updates the shapes position, and other attributes 
+       (randomly or predetermined) */
     update(d) {
       this.updateSignal()
       this.c = increment(this.c, rand_between(-5, 5), 128);
       this.x += rand_between(-1, 1);
       this.y += rand_between(-1, 1);
     }
+    /* increases signal size and sets to zero when it has reached its max size
+       at that point, 'influences' all the shapes the signal reached*/
     updateSignal() {
       if (this.signalSize > maxSigSize(this.c)) {
         this.graph.updateDist(this.name);
@@ -80,20 +83,28 @@
         this.signalSize += 5;
       }
     }
+    /* distance formula */
     dist(that) {
       return Math.sqrt(Math.pow(this.x-that.x,2) + Math.pow(this.y-that.y,2));
     }
+    /* 'influences' another shape by updating its attributes*/
     influence(that) {
-      let sign = (Math.sign(this.c) == Math.sign(that.c))
-      let dir = Math.sign(sign -0.5);
-      that.x += dir * Math.sign(this.x-that.x)* 5;
-      that.y += dir * Math.sign( this.y-that.y) * 5;
+      let sign = (Math.sign(this.c) === Math.sign(that.c))
+      // 1 if are similar polarity, -1 if opposite
+      let dir = Math.sign(sign - 0.5);
+      // moves closer if similar polarity, father apart if opposite
+      that.x += dir * Math.sign(this.x-that.x) * 5;
+      that.y += dir * Math.sign(this.y-that.y) * 5;
+      // increases polarity if similar, does nothing if opposite
       that.c = increment(that.c, sign * Math.sign(this.c), 128);    
     }
   }
   
 </script>
 <script>
+  /* Graph class
+   * Represents a collection of shapes and updates based on their interactions
+   */
   class Graph {
     constructor(n, w, h) {
       this.n = n;
@@ -101,23 +112,25 @@
         .fill()
         .map((_, i) => new Node(i, w, h, this));
     }
+    /* */
     updateDist(i) {
       let n1 = this.nodes[i];
       this.nodes.map((n2, j) => {
-        if (i == j) {
-          return;
-        }
+        if (i === j) return;
         if (n1.dist(n2) <= maxSigSize(n1.c)) {
           n1.influence(n2);
         }
       })
       
     }
+    /* continually draws and updates nodes, 
+       sends signal as previous signal is done */
     run() {
       this.nodes.map((n, i) => {
         n.update(deltaTime);
         n.draw(frameCount);
-        if (i == (frameCount % this.nodes.length) && (n.signalSize == 0)) {
+        // todo: a little sloppy
+        if (i === (frameCount % this.nodes.length) && (n.signalSize === 0)) {
           n.signalSize=1;
         }
         
@@ -126,18 +139,16 @@
   }
 </script>
 <script>
+  // p5.js stuff
   let g;
   
   setup = () => {
     frameRate(30); 
-    let [w, h] = [1000, 1000];
     createCanvas(windowWidth, windowHeight, WEBGL)
     g = new Graph(20, windowWidth, windowHeight);
   }
   draw = () => {
     background(20)
     g.run();
-      
-  
-}
+  }
 </script>
