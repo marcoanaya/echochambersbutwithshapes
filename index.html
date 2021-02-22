@@ -121,8 +121,7 @@
         if (n1.dist(n2) <= maxSigSize(n1.c)) {
           n1.influence(n2);
         }
-      })
-      
+      });
     }
     /* continually draws and updates nodes, 
        sends signal as previous signal is done */
@@ -133,9 +132,8 @@
         // todo: a little sloppy
         if (i === (frameCount % this.nodes.length) && (n.signalSize === 0)) {
           n.signalSize=1;
-        }
-        
-    })
+        }  
+      });
     }
   }
 
