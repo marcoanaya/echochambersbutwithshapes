@@ -43,7 +43,7 @@
       // random attributes for more visual aesthetics
       // todo: make shapes more interesting
       this.r = Math.random();
-      [this.x, this.y] = [[w, 3], [h, 3]].map(([x,n]) => random(-x/n, x/n));
+      [this.x, this.y] = [[w, 3], [h, 2.1]].map(([x,n]) => random(-x/n, x/n));
       this.sides = random([3,4,6,24])
       this.radii = [25,15].map(x => rand_within(x, x/5))
       
@@ -150,8 +150,8 @@
   
   setup = () => {
     frameRate(30); 
-    createCanvas(windowWidth, windowHeight *2, WEBGL)
-    g = new Graph(100, windowWidth, windowHeight*10);
+    createCanvas(windowWidth, windowHeight *4, WEBGL)
+    g = new Graph(100, windowWidth, windowHeight*4);
   }
   draw = () => {
     // console.log(norm(mouseY, 0, 1));
