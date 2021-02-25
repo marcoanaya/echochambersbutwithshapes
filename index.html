@@ -1,3 +1,13 @@
+<head>
+  <meta charset="UTF-8">
+  <meta name="description" content="this is a website about echo chambers but with shapes.">
+  <meta name="keywords" content="trianges, squares, hexagons, circles">
+  <meta name="author" content="Marco Anaya">
+  <meta name="title" content="echo chambers but with shapes">
+  <meta property="og:title" content="hello">
+  <meta property="og:description" content="this is a website about echo chambers but with shapes.">
+  <meta property="og:image" content="http://euro-travel-example.com/thumbnail.jpg">
+</head>
 
 <div>
   
@@ -11,9 +21,7 @@
   // function to calculate max signal size based on polarity coefficient
   const maxSigSize = c => (2*Math.abs(c));
   // javascript doesn't have good random functions :^(
-  const rand_between = (s, e) => (Math.random() * (e-s)) + s;
-  const rand_arr = arr => arr[Math.floor(rand_between(0, arr.length))];
-  const rand_within = (x, delta) => rand_between(x-delta, x+delta);
+  const rand_within = (x, delta) => random(x-delta, x+delta);
   // increases x by i, but rounds to 'cap'
   const increment = (x, i, cap) => (
     (Math.abs(x + i) > Math.abs(cap))
@@ -29,14 +37,14 @@
       this.name = i;
       this.graph = g;
       // polarity coefficient
-      this.c = rand_between(-100, 100);
+      this.c = random(-100, 100);
       this.color = clr(this.c);
       
       // random attributes for more visual aesthetics
       // todo: make shapes more interesting
       this.r = Math.random();
-      [this.x, this.y] = [w, h].map(x => rand_between(-x/3, x/3));
-      this.sides = rand_arr([3,4,6,24])
+      [this.x, this.y] = [w, h].map(x => random(-x/3, x/3));
+      this.sides = random([3,4,6,24])
       this.radii = [25,15].map(x => rand_within(x, x/5))
       
       // initializes 'signal' (circle that comes out of shape)
@@ -71,9 +79,9 @@
        (randomly or predetermined) */
     update(d) {
       this.updateSignal()
-      this.c = increment(this.c, rand_between(-5, 5), 128);
-      this.x += rand_between(-1, 1);
-      this.y += rand_between(-1, 1);
+      this.c = increment(this.c, random(-5, 5), 128);
+      this.x += random(-1, 1);
+      this.y += random(-1, 1);
     }
     /* increases signal size and sets to zero when it has reached its max size
        at that point, 'influences' all the shapes the signal reached*/
