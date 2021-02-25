@@ -18,10 +18,9 @@
 <script>
   // converts 'polarity' coefficient to color
   // todo: red and blue are a little on the nose but they were the easiest
-  const clr = c => [128+c, 50, 128-c];
+  const clr = c => [128+c, 100, 128-c];
   // function to calculate max signal size based on polarity coefficient
-  const maxSigSize = c => (2*Math.abs(c));
-  // javascript doesn't have good random functions :^(
+  const maxSigSize = c => (50+Math.pow(Math.abs(c),1.2));
   const rand_within = (x, delta) => random(x-delta, x+delta);
   // increases x by i, but rounds to 'cap'
   const increment = (x, i, cap) => (
@@ -73,7 +72,7 @@
       stroke(...clr(this.c));    
       rotateX(PI/2);
       rotateY(0);
-      cylinder(this.signalSize, 10, 24, 1, false, false );
+      cylinder(this.signalSize, 20, 24, 1, false, false );
       pop();
     }
     /* updates the shapes position, and other attributes 
@@ -101,14 +100,15 @@
     /* 'influences' another shape by updating its attributes*/
     /* todo: tweak */
     influence(that) {
-      let sign = (Math.sign(this.c) === Math.sign(that.c))
+      let isMoreExtreme = Math.sign(Math.abs(this.c)-Math.abs(that.c));
+      let samePolarity = (that.c > 0) ^ (this.c < 0);
       // 1 if are similar polarity, -1 if opposite
-      let dir = Math.sign(sign - 0.5);
+      let dir = Math.sign(samePolarity - 0.5);
       // moves closer if similar polarity, father apart if opposite
       that.x += dir * Math.sign(this.x-that.x) * 5;
       that.y += dir * Math.sign(this.y-that.y) * 5;
       // increases polarity if similar, does nothing if opposite
-      that.c = increment(that.c, sign * Math.sign(this.c), 128);    
+      that.c = increment(that.c, isMoreExtreme * Math.sign(this.c), 128);    
     }
   }
   
@@ -150,11 +150,12 @@
   
   setup = () => {
     frameRate(30); 
-    createCanvas(windowWidth, windowHeight, WEBGL)
-    g = new Graph(20, windowWidth, windowHeight);
+    createCanvas(windowWidth, windowHeight *10, WEBGL)
+    g = new Graph(400, windowWidth, windowHeight*10);
   }
   draw = () => {
-    background(20)
+    // console.log(norm(mouseY, 0, 1));
+    background(20);
     g.run();
   }
 </script>
