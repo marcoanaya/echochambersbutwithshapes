@@ -16,6 +16,7 @@
 <script src="https://cdn.jsdelivr.net/npm/p5@1.2.0/lib/p5.js"></script>
 
 <script>
+  let Vec = p5.Vector;
   // converts 'polarity' coefficient to color
   // todo: red and blue are a little on the nose but they were the easiest
   const clr = c => [128+c, 100, 128-c];
@@ -43,7 +44,8 @@
       // random attributes for more visual aesthetics
       // todo: make shapes more interesting
       this.r = Math.random();
-      [this.x, this.y] = [[w, 3], [h, 2.1]].map(([x,n]) => random(-x/n, x/n));
+      this.pos = createVector(...[[w, 3], [h, 2.1]].map(([x,n]) => random(-x/n, x/n)));
+      
       this.sides = random([3,4,6,24])
       this.radii = [25,15].map(x => rand_within(x, x/5))
       
@@ -53,7 +55,7 @@
     /* graphic representation of shape and its 'signal' */
     draw(fc) {
       push();
-      translate(this.x, this.y);
+      translate(this.pos);
       this.drawSelf(fc);
       this.drawSignal(fc);
       pop();
@@ -80,6 +82,7 @@
     update(d) {
       this.updateSignal()
       this.c = increment(this.c, random(-5, 5), 128);
+      this.pos.add(p5.Vector.random2D().mult(2));
       this.x += random(-1, 1);
       this.y += random(-1, 1);
     }
@@ -95,7 +98,7 @@
     }
     /* distance formula */
     dist(that) {
-      return Math.sqrt(Math.pow(this.x-that.x,2) + Math.pow(this.y-that.y,2));
+      return this.pos.dist(that.pos);//Math.sqrt(Math.pow(this.x-that.x,2) + Math.pow(this.y-that.y,2));
     }
     /* 'influences' another shape by updating its attributes*/
     /* todo: tweak */
@@ -105,6 +108,17 @@
       // 1 if are similar polarity, -1 if opposite
       let dir = Math.sign(samePolarity - 0.5);
       // moves closer if similar polarity, father apart if opposite
+      that.pos.add(
+        Vec.sub(this.pos, that.pos)
+          .normalize()
+          .mult(dir*5)
+      );
+      let diff = Vec.sub(this.pos, that.pos);
+      
+      if (diff.mag() < 50) {
+        that.pos = Vec.add(this.pos, diff.setMag(50))
+      }
+      
       that.x += dir * Math.sign(this.x-that.x) * 5;
       that.y += dir * Math.sign(this.y-that.y) * 5;
       // increases polarity if similar, does nothing if opposite
