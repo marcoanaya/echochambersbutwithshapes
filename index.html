@@ -4,9 +4,10 @@
   <meta name="keywords" content="trianges, squares, hexagons, circles">
   <meta name="author" content="Marco Anaya">
   <title>echo chambers but with shapes</title>
+  
   <meta property="og:title" content="hello">
   <meta property="og:description" content="this is a website about echo chambers but with shapes.">
-  <meta property="og:image" content="http://euro-travel-example.com/thumbnail.jpg">
+  <meta property="og:image" content="Screenshot from 2021-02-26 18-15-57.png">
 </head>
 <body>
   <div>
@@ -83,8 +84,6 @@
       this.updateSignal()
       this.c = increment(this.c, random(-5, 5), 128);
       this.pos.add(p5.Vector.random2D().mult(2));
-      this.x += random(-1, 1);
-      this.y += random(-1, 1);
     }
     /* increases signal size and sets to zero when it has reached its max size
        at that point, 'influences' all the shapes the signal reached*/
@@ -108,19 +107,15 @@
       // 1 if are similar polarity, -1 if opposite
       let dir = Math.sign(samePolarity - 0.5);
       // moves closer if similar polarity, father apart if opposite
-      that.pos.add(
-        Vec.sub(this.pos, that.pos)
+      that.pos.add(Vec.sub(this.pos, that.pos)
           .normalize()
-          .mult(dir*5)
-      );
-      let diff = Vec.sub(this.pos, that.pos);
+          .mult(dir*5));
+//       let diff = Vec.sub(this.pos, that.pos);
       
-      if (diff.mag() < 50) {
-        that.pos = Vec.add(this.pos, diff.setMag(50))
-      }
+//       if (diff.mag() < 25) {
+//         that.pos = Vec.sub(this.pos, diff.setMag(25))
+//       }
       
-      that.x += dir * Math.sign(this.x-that.x) * 5;
-      that.y += dir * Math.sign(this.y-that.y) * 5;
       // increases polarity if similar, does nothing if opposite
       that.c = increment(that.c, isMoreExtreme * Math.sign(this.c), 128);    
     }
@@ -164,8 +159,8 @@
   
   setup = () => {
     frameRate(30); 
-    createCanvas(windowWidth, windowHeight *4, WEBGL)
-    g = new Graph(100, windowWidth, windowHeight*4);
+    createCanvas(windowWidth, windowHeight, WEBGL)
+    g = new Graph(20, windowWidth, windowHeight);
   }
   draw = () => {
     // console.log(norm(mouseY, 0, 1));
