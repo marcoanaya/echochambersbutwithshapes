@@ -20,7 +20,11 @@
   let Vec = p5.Vector;
   // converts 'polarity' coefficient to color
   // todo: red and blue are a little on the nose but they were the easiest
-  const clr = c => [128+c, 100, 128-c];
+  const clr = c => {
+    let c1 = createVector(200, 0, 100);
+    let c2 = createVector(12, 200, 200);
+    return c1.add(c2.sub(c1).mult(norm(c, -100, 100)));
+  }
   // function to calculate max signal size based on polarity coefficient
   const maxSigSize = c => (50+Math.pow(Math.abs(c),1.2));
   const rand_within = (x, delta) => random(x-delta, x+delta);
@@ -45,7 +49,7 @@
       // random attributes for more visual aesthetics
       // todo: make shapes more interesting
       this.r = Math.random();
-      this.pos = createVector(...[[w, 3], [h, 2.1]].map(([x,n]) => random(-x/n, x/n)));
+      this.pos = createVector(...[w/3, h/2.1].map(x => random(-x, x)));
       
       this.sides = random([3,4,6,24])
       this.radii = [25,15].map(x => rand_within(x, x/5))
@@ -63,7 +67,7 @@
     }
     drawSelf(fc) {
       push();
-      fill(...clr(this.c));
+      fill(...clr(this.c).array());
       noStroke();
       [rotateX, rotateY].map(f => f((this.r * fc)/10));
       torus(...this.radii, this.sides);
@@ -71,8 +75,8 @@
     }
     drawSignal(fc) {
       push();
-      fill(...clr(this.c));
-      stroke(...clr(this.c));    
+      fill(...clr(this.c).array());
+      stroke(...clr(this.c).array());    
       rotateX(PI/2);
       rotateY(0);
       cylinder(this.signalSize, 20, 24, 1, false, false );
