@@ -19,14 +19,12 @@
 <script>
   let Vec = p5.Vector;
   // converts 'polarity' coefficient to color
-  // todo: red and blue are a little on the nose but they were the easiest
-  const clr = c => {
-    let c1 = createVector(200, 0, 100);
-    let c2 = createVector(12, 200, 200);
-    return c1.add(c2.sub(c1).mult(norm(c, -100, 100)));
-  }
+  let c1 = new Vec(200, 100, 150);
+  let c2 = new Vec(12, 200, 200);
+  const clr = c =>  Vec.add(c1, Vec.sub(c2,c1).mult(norm(c, -100, 100))).array();
+
   // function to calculate max signal size based on polarity coefficient
-  const maxSigSize = c => (50+Math.pow(Math.abs(c),1.2));
+  const maxSigSize = c => (50+Math.pow(Math.abs(c),1.1));
   const rand_within = (x, delta) => random(x-delta, x+delta);
   // increases x by i, but rounds to 'cap'
   const increment = (x, i, cap) => (
@@ -44,15 +42,16 @@
       this.graph = g;
       // polarity coefficient
       this.c = random(-100, 100);
-      this.color = clr(this.c);
+      this.engagement = Math.random();
+      
       
       // random attributes for more visual aesthetics
       // todo: make shapes more interesting
       this.r = Math.random();
-      this.pos = createVector(...[w/3, h/2.1].map(x => random(-x, x)));
+      this.pos = new Vec(...[w/3, h/2.1].map(x => random(-x, x)));
       
       this.sides = random([3,4,6,24])
-      this.radii = [25,15].map(x => rand_within(x, x/5))
+      this.radii = [25,15].map(x => rand_within(x, x/3))
       
       // initializes 'signal' (circle that comes out of shape)
       this.signalSize = 0;
@@ -67,7 +66,7 @@
     }
     drawSelf(fc) {
       push();
-      fill(...clr(this.c).array());
+      fill(...clr(this.c));
       noStroke();
       [rotateX, rotateY].map(f => f((this.r * fc)/10));
       torus(...this.radii, this.sides);
@@ -75,8 +74,8 @@
     }
     drawSignal(fc) {
       push();
-      fill(...clr(this.c).array());
-      stroke(...clr(this.c).array());    
+      fill(...clr(this.c));
+      stroke(...clr(this.c));    
       rotateX(PI/2);
       rotateY(0);
       cylinder(this.signalSize, 20, 24, 1, false, false );
@@ -90,13 +89,15 @@
       this.pos.add(p5.Vector.random2D().mult(2));
     }
     /* increases signal size and sets to zero when it has reached its max size
-       at that point, 'influences' all the shapes the signal reached*/
+       at that point, 'influences' all the shapes the signal reached */
     updateSignal() {
       if (this.signalSize > maxSigSize(this.c)) {
         this.graph.updateDist(this.name);
         this.signalSize = 0;
       } else if (this.signalSize > 0) {
         this.signalSize += 5;
+      } else if (Math.random()*30 < this.engagement) {
+        this.signalSize = 1;
       }
     }
     /* distance formula */
@@ -112,10 +113,10 @@
       let dir = Math.sign(samePolarity - 0.5);
       // moves closer if similar polarity, father apart if opposite
       that.pos.add(Vec.sub(this.pos, that.pos)
+          .rotate(HALF_PI/2)
           .normalize()
           .mult(dir*5));
 //       let diff = Vec.sub(this.pos, that.pos);
-      
 //       if (diff.mag() < 25) {
 //         that.pos = Vec.sub(this.pos, diff.setMag(25))
 //       }
@@ -139,28 +140,28 @@
        shapes it has reached */
     updateDist(i) {
       let n1 = this.nodes[i];
-      this.nodes.map((n2, j) => {
-        if ((i !== j) && (n1.dist(n2) <= maxSigSize(n1.c)))
+      let nodesReached = this.nodes.reduce((acc, n2, j) => {
+        if ((i !== j) && (n1.dist(n2) <= maxSigSize(n1.c))) {
           n1.influence(n2);
-      });
+          acc++;
+        }
+        return acc;
+      }, 0);
+      
+      n1.engagement += (nodesReached >= 3)? 0.05 : 0;
     }
-    /* continually draws and updates nodes, 
-       sends signal as previous signal is done */
+    /* continually draws and updates nodes */
     run() {
       this.nodes.map((n, i) => {
         n.update(deltaTime);
         n.draw(frameCount);
-        // todo: a little sloppy
-        if (i === (frameCount % this.nodes.length) && (n.signalSize === 0)) {
-          n.signalSize=1;
-        }  
       });
     }
   }
 
   // p5.js stuff
   let g;
-  
+
   setup = () => {
     frameRate(30); 
     createCanvas(windowWidth, windowHeight, WEBGL)
